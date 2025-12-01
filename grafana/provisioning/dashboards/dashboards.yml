@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: 'Default'
+    orgId: 1
+    folder: 'SRE Challenge'
+    type: file
+    disableDeletion: false
+    options:
+      path: /var/lib/grafana/dashboards
