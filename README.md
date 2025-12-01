@@ -1,4 +1,4 @@
-# SRE Challenge - Observabilidade Completa
+# SRE Challenge HOUS3 - Stack de Observabilidade
 
 ## 📋 Visão Geral
 
@@ -73,6 +73,5 @@ make help        # Ver todos os comandos
 - ✅ Scripts de automação
 - ✅ Production-ready
 
-## 📞 Contato
 
-Projeto criado para SRE Challenge - Hous3 Digital
+Projeto criado para estudo baseado na proposta do SRE Challenge da Hous3 Digital.
