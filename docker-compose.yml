@@ -5,16 +5,21 @@ services:
     build: ./app
     container_name: payment-service
     ports:
-      - "3000:3000"
+      - "8080:3000"  
     environment:
       - NODE_ENV=production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
       - OTEL_SERVICE_NAME=payment-service
-    depends_on:
-      - otel-collector
+      - LOG_LEVEL=info
     networks:
       - observability
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.91.0
@@ -26,6 +31,7 @@ services:
       - "4317:4317"
       - "4318:4318"
       - "13133:13133"
+      - "8888:8888"
     depends_on:
       - jaeger
       - prometheus
@@ -40,6 +46,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.path=/prometheus'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
@@ -54,9 +62,11 @@ services:
     container_name: jaeger
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
     ports:
       - "16686:16686"
       - "14268:14268"
+      - "14250:14250"
     networks:
       - observability
     restart: unless-stopped
@@ -77,16 +87,21 @@ services:
   grafana:
     image: grafana/grafana:10.2.2
     container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3001:3000"
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_LOG_LEVEL=info
     depends_on:
       - prometheus
       - loki
@@ -101,5 +116,8 @@ networks:
 
 volumes:
   prometheus-data:
+    driver: local
   loki-data:
+    driver: local
   grafana-data:
+    driver: local

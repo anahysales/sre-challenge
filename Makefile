@@ -41,12 +41,12 @@ status:
 
 test:
 	@echo "🧪 Testando API..."
-	@curl -s http://localhost:3000/health | jq '.'
+	@curl -s http://localhost:8080/health| jq '.'
 
 quick-load:
 	@echo "⚡ Teste de carga rápido (1 minuto)..."
 	@for i in {1..60}; do \
-		curl -s -X POST http://localhost:3000/api/payments \
+		curl -s -X POST http://localhost:8080/api/payments \
 			-H "Content-Type: application/json" \
 			-d "{\"amount\": $$((RANDOM % 1000)), \"currency\": \"BRL\", \"customer_id\": \"load-$$i\"}" > /dev/null; \
 		sleep 1; \

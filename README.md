@@ -32,7 +32,7 @@ open http://localhost:3001
 
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
-| Aplicação | http://localhost:3000 | API REST de pagamentos |
+| Aplicação | http://localhost:8080 | API REST de pagamentos |
 | Grafana | http://localhost:3001 | Dashboards e visualização |
 | Prometheus | http://localhost:9090 | Métricas |
 | Jaeger | http://localhost:16686 | Traces distribuídos |
